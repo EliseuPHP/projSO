@@ -12,12 +12,10 @@ int partition (int arr[], int low, int high){
     int pivot = arr[high];    // pivot
     int i = (low - 1);  // Index of smaller element
 
-    for (int j = low; j <= high- 1; j++)
-    {
+    for (int j = low; j <= high- 1; j++){
         // If current element is smaller than or
         // equal to pivot
-        if (arr[j] <= pivot)
-        {
+        if (arr[j] <= pivot){
             i++;    // increment index of smaller element
             swap(&arr[i], &arr[j]);
         }
@@ -27,8 +25,7 @@ int partition (int arr[], int low, int high){
 }
 
 void quickSort(int arr[], int low, int high){
-    if (low < high)
-    {
+    if (low < high){
         /* pi is partitioning index, arr[p] is now
            at right place */
         int pi = partition(arr, low, high);
@@ -84,7 +81,7 @@ int main(int argc, char const *argv[]) {
   //for (size_t i = 0; i < j; i++) {
   //  printf("%d\n", ord[i]);
   //}
-  
+
   FILE *p = fopen(argv[i], "w");
   for (size_t i = 0; i < count; i++) {
     fprintf(p, "%d\n", ord[i]);
