@@ -1,6 +1,6 @@
 # Projeto 1 Sistemas Operacionais - 2018</br><b>“Ordenação de Alto Desempenho"</b>
 ## Grupo: <b>Golden Wind</b>
-![](/.git/Part5logo.png)
+![](.git/Part5logo.png)
 
 
 <h3>
