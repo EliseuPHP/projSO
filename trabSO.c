@@ -1,56 +1,71 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
+#include <pthread.h>
+
+int count = 0;
+int numT = 0;
 
 void swap(int* a, int* b){
-    int t = *a;
-    *a = *b;
-    *b = t;
+  int t = *a;
+  *a = *b;
+  *b = t;
 }
 
 int partition (int arr[], int low, int high){
-    int pivot = arr[high];    // pivot
-    int i = (low - 1);  // Index of smaller element
+  int pivot = arr[high];
+  int i = (low - 1);
 
-    for (int j = low; j <= high- 1; j++){
-        // If current element is smaller than or
-        // equal to pivot
-        if (arr[j] <= pivot){
-            i++;    // increment index of smaller element
-            swap(&arr[i], &arr[j]);
-        }
+  for (int j = low; j <= high- 1; j++){
+    if (arr[j] <= pivot){
+      i++;
+      swap(&arr[i], &arr[j]);
     }
-    swap(&arr[i + 1], &arr[high]);
-    return (i + 1);
+  }
+  swap(&arr[i + 1], &arr[high]);
+  return (i + 1);
 }
 
-void quickSort(int arr[], int low, int high){
-    if (low < high){
-        /* pi is partitioning index, arr[p] is now
-           at right place */
-        int pi = partition(arr, low, high);
+void quickSort(void * arr, int low, int high){
+  if (low < high){
 
-        // Separately sort elements before
-        // partition and after partition
-        quickSort(arr, low, pi - 1);
-        quickSort(arr, pi + 1, high);
-    }
+    int pi = partition(arr, low, high);
+
+    quickSort(arr, low, pi - 1);
+    quickSort(arr, pi + 1, high);
+  }
+}
+
+void* tQuickSort(void * arr){
+
+  int low = 0;
+  int high = count-1;
+
+  if (low < high){
+
+    int pi = partition(arr, low, high);
+
+    quickSort(arr, low, pi - 1);
+    quickSort(arr, pi + 1, high);
+  }
+  pthread_exit(0);
 }
 
 //zapkk
 int main(int argc, char const *argv[]) {
-  int numT = 0;
-  //printf("%d\n", argc);
+
+
   numT = atoi(argv[1]);
-  int *ord, count = 0;
+  printf("%d\n", numT);
+  int *ord;
   int i, j = 0;
+  pthread_t tid[numT];
   for (i = 2; i < argc-1; i++) {
 
     char teste[11];
     //printf("filename: %s\n", argv[i]);
     FILE *p = fopen(argv[i],"r");
     int t = 0;
-    while (t != 1) // expect 1 successful conversion
+    while (t != 1)
     {
       fscanf(p,"%s\n", teste);
       if (feof(p)) {
@@ -75,12 +90,25 @@ int main(int argc, char const *argv[]) {
     fclose(p);
   }
   //printf("\n%s\n\n", "fim");
+  for (int i = 0; i < numT; i++) {
+    pthread_attr_t attr;
+    pthread_attr_init(&attr);
 
-  quickSort(ord, 0, count-1);
+    pthread_create(&tid[i], &attr, tQuickSort, ord);
+  }
 
-  //for (size_t i = 0; i < j; i++) {
-  //  printf("%d\n", ord[i]);
-  //}
+  printf("%s\n", "passou o create");
+
+  for (int i = 0; i < numT; i++){
+    printf("%d\n", i);
+    pthread_join(tid[i], NULL);
+  }
+
+  printf("%s\n", "passou o join");
+
+  // for (size_t i = 0; i < j; i++) {
+  //   printf("%d\n", ord[i]);
+  // }
 
   FILE *p = fopen(argv[i], "w");
   for (size_t i = 0; i < count; i++) {
