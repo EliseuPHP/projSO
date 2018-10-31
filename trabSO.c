@@ -1,64 +1,36 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <pthread.h>
 
+//tamanho do vetor
 int count = 0;
-int numT = 0;
+// variaveis para controle da quantidade de threads criadas
+int countT = 0, numT = 0;
 
-void swap(int* a, int* b){
-  int t = *a;
-  *a = *b;
-  *b = t;
-}
+typedef struct Params{
+  int *arr;
+  size_t len;
+  int depth;
+} Params;
 
-int partition (int arr[], int low, int high){
-  int pivot = arr[high];
-  int i = (low - 1);
+// nao bugar os printf
+pthread_mutex_t print = PTHREAD_MUTEX_INITIALIZER;
 
-  for (int j = low; j <= high- 1; j++){
-    if (arr[j] <= pivot){
-      i++;
-      swap(&arr[i], &arr[j]);
-    }
-  }
-  swap(&arr[i + 1], &arr[high]);
-  return (i + 1);
-}
-
-void quickSort(void * arr, int low, int high){
-  if (low < high){
-
-    int pi = partition(arr, low, high);
-
-    quickSort(arr, low, pi - 1);
-    quickSort(arr, pi + 1, high);
-  }
-}
-
-void* tQuickSort(void * arr){
-
-  int low = 0;
-  int high = count-1;
-
-  if (low < high){
-
-    int pi = partition(arr, low, high);
-
-    quickSort(arr, low, pi - 1);
-    quickSort(arr, pi + 1, high);
-  }
-  pthread_exit(0);
-}
+// Declaracao das funcoes
+void merge(int *arr, int *mid, int *end);
+void mergeSort(int *arr, size_t len, int depth);
+void *mergeSortStruct(void *pv);
+void mergeSortIni(int *arr, size_t len);
 
 //zapkk
 int main(int argc, char const *argv[]) {
 
 
   numT = atoi(argv[1]);
-  printf("%d\n", numT);
-  int *ord;
+  //printf("%d\n", numT);
+  int *arr;
   int i, j = 0;
-  pthread_t tid[numT];
   for (i = 2; i < argc-1; i++) {
 
     char teste[11];
@@ -77,42 +49,104 @@ int main(int argc, char const *argv[]) {
     rewind(p);
     if (i == 2) {
       //printf("malloc\n");
-      ord = (int *) malloc(count * sizeof(int));
+      arr = (int *) malloc(count * sizeof(int));
     } else {
       //printf("realloc\n");
-      ord = (int *) realloc(ord, count * sizeof(int));
+      arr = (int *) realloc(arr, count * sizeof(int));
     }
 
     for (; j < count; j++) {
-      fscanf(p,"%d\n", &ord[j]);
-      //printf("%d\n", ord[j]);
+      fscanf(p,"%d\n", &arr[j]);
+      //printf("%d\n", arr[j]);
     }
     fclose(p);
   }
   //printf("\n%s\n\n", "fim");
-  for (int i = 0; i < numT; i++) {
-    pthread_attr_t attr;
-    pthread_attr_init(&attr);
 
-    pthread_create(&tid[i], &attr, tQuickSort, ord);
-  }
-
-  printf("%s\n", "passou o create");
-
-  for (int i = 0; i < numT; i++){
-    printf("%d\n", i);
-    pthread_join(tid[i], NULL);
-  }
-
-  printf("%s\n", "passou o join");
-
-  // for (size_t i = 0; i < j; i++) {
-  //   printf("%d\n", ord[i]);
-  // }
+  mergeSortIni(arr, count);
 
   FILE *p = fopen(argv[i], "w");
   for (size_t i = 0; i < count; i++) {
-    fprintf(p, "%d\n", ord[i]);
+    fprintf(p, "%d\n", arr[i]);
   }
   return 0;
+}
+
+//***********************MERGESORT**********************************************
+
+void merge(int *arr, int *mid, int *end){
+  int *res = malloc((end - arr)*sizeof(*res));
+  int *lhs = arr, *rhs = mid, *dst = res;
+
+  while (lhs != mid && rhs != end){
+    if (*lhs < *rhs) {
+      *dst++ = *lhs++;
+    } else {
+      *dst++ = *rhs++;
+    }
+  }
+
+  while (lhs != mid){
+    *dst++ = *lhs++;
+  }
+
+  memcpy(arr, res, (rhs - arr) * sizeof *res);
+  free(res);
+}
+
+void mergeSort(int *arr, size_t len, int depth){
+  if (len < 2){
+    return;
+  }
+
+
+  if (depth <= 0 || len < 4){
+    mergeSort(arr, len/2, 0);
+    mergeSort(arr+len/2, len-len/2, 0);
+  }else{
+    pthread_mutex_lock(&print);
+    printf("%d e menor que %d?: ", countT, numT);
+    pthread_mutex_unlock(&print);
+    //criar quantidade de threads informadas pelo usuario
+    if (countT < numT) {
+      pthread_mutex_lock(&print);
+      printf("sim\n");
+      countT++;
+      pthread_mutex_unlock(&print);
+
+      Params left = { arr, len/2, depth/2 };
+
+      pthread_t thrd;
+
+      pthread_mutex_lock(&print);
+      printf("Inicializando thead n: %d\n", countT);
+      pthread_mutex_unlock(&print);
+
+      pthread_create(&thrd, NULL, mergeSortStruct, &left);
+      //recursividade
+      mergeSort(arr+len/2, len-len/2, depth/2);
+
+      pthread_join(thrd, NULL);
+    } else{
+      pthread_mutex_lock(&print);
+      printf("nao\n");
+      pthread_mutex_unlock(&print);
+
+      mergeSort(arr, len/2, depth/2);
+      mergeSort(arr+len/2, len-len/2, depth/2);
+    }
+  }
+  //envia o endedreco inicial do vetor, endereco do meio e endereco final
+  merge(arr, arr+len/2, arr+len);
+}
+
+// funcao recursiva para ler o struct
+void *mergeSortStruct(void *pv){
+  Params *params = pv;
+  mergeSort(params->arr, params->len, params->depth);
+  return pv;
+}
+
+void mergeSortIni(int *arr, size_t len){
+  mergeSort(arr, len, numT);
 }
