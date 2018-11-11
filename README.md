@@ -10,6 +10,8 @@
     <li><s>Colocar o pthreads no codigo </s> 0:57h
     <li><s>Descobrir se esta certo o que foi feito </s> Nao Estava
     <li><s>Arrumar o erro</s> 2:22h
+    <li><s>Eis que estava errado denovo </s>
+    <li><s>Arrumar o erro</s> 1:40h
     <li>Fazer video e relatorio
     <li>Entregar
   </ol>
