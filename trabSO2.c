@@ -14,7 +14,7 @@ typedef struct pos{
   int end;
 } pos;
 
-// Declaracao das funcoes
+// Declaracao das funcoess
 void * startMergeSort(void *pv);
 void merge(int arr[], int l, int m, int r);
 void mergeSort(int arr[], int l, int r);
