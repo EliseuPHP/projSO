@@ -9,19 +9,27 @@ int count = 0;
 int countT = 0, numT = 0;
 
 typedef struct pos{
-  int *arr;
+  int * arr;
   int start;
   int end;
 } pos;
 
 // Declaracao das funcoess
-void * startMergeSort(void *pv);
-void merge(int arr[], int l, int m, int r);
-void mergeSort(int arr[], int l, int r);
+void * startMergeSort(void * structPos);
+void merge(int * arr, int l, int m, int r);
+void mergeSort(int * arr, int l, int r);
 void countPositions(int nPos, pos * pos, int * arr);
 
 //zapkk
 int main(int argc, char const *argv[]) {
+  if (argc < 4) {
+    printf("Voce inseriu poucos dados nos argumentos de execucao!\n");
+    printf("Insira dessa maneira:\n\t");
+    printf("./'nome do executavel' 'numero de threads que deseja usar' 'n arquivos de entrada' 'arquivo de saida'\n");
+    printf("Exemplo:\n\t");
+    printf("%s\n", "./t 16 arq1.in arq2.in arq3.in arqSaida.out");
+    return 0;
+  }
 
 
   numT = atoi(argv[1]);
@@ -65,27 +73,31 @@ int main(int argc, char const *argv[]) {
 
   pthread_t thrd[numT];
 
-  for (int i = 0; i < numT; i++) {
-    printf("%d -- %d\n", pos[i].start, pos[i].end);
-    pthread_create(&thrd[i], NULL, startMergeSort, &pos[i]);
+  int k = 0;
+
+  for (k = 0; k < numT; k++) {
+    //printf("%d -- %d\n", pos[k].start, pos[k].end);
+    pthread_create(&thrd[k], NULL, startMergeSort, &pos[k]);
   }
 
-  for (int i = 0; i < numT; i++) {
-    pthread_join(thrd[i], NULL);
+  for (k = 0; k < numT; k++) {
+    pthread_join(thrd[k], NULL);
   }
 
   mergeSort(arr, pos[0].start, pos[numT-1].end-1);
 
   FILE *p = fopen(argv[i], "w");
-  for (size_t i = 0; i < count; i++) {
-    fprintf(p, "%d\n", arr[i]);
+  for (k = 0; k < count; k++) {
+    fprintf(p, "%d\n", arr[k]);
   }
+
+
   return 0;
 }
 
 //***********************MERGESORT**********************************************
 
-void merge(int arr[], int s, int m, int e){
+void merge(int * arr, int s, int m, int e){
   int i, j, k;
   int n1 = m - s + 1;
   int n2 =  e - m;
@@ -126,7 +138,7 @@ void merge(int arr[], int s, int m, int e){
   }
 }
 
-void mergeSort(int arr[], int s, int e){
+void mergeSort(int * arr, int s, int e){
   if (s < e){
 
     int m = s+(e-s)/2;
@@ -139,10 +151,10 @@ void mergeSort(int arr[], int s, int e){
 }
 
 // funcao para chamar o sort usando struct
-void * startMergeSort(void *structPos){
+void * startMergeSort(void * structPos){
   pos * pos = structPos;
   mergeSort(pos->arr, pos->start, pos->end-1);
-  return pos;
+  pthread_exit(NULL);
 }
 
 void countPositions(int nPos, pos * pos, int * arr){
