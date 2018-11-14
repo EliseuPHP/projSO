@@ -12,7 +12,8 @@
     <li><s>Arrumar o erro</s> 2:22h
     <li><s>Eis que estava errado denovo </s>
     <li><s>Arrumar o erro</s> 1:40h
-    <li>Fazer video e relatorio
-    <li>Entregar
+    <li><s>Fazer video e relatorio </s>
+    <li><s>Entregar </s>
+    <li> Relatório e video presentes nesse repositório
   </ol>
 </h3>
