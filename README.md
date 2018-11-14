@@ -14,6 +14,6 @@
     <li><s>Arrumar o erro</s> 1:40h
     <li><s>Fazer video e relatorio </s>
     <li><s>Entregar </s>
-    <li> Relatório e video presentes nesse repositório
+    <li> Relatório presente nesse repositório e video presente no link https://drive.google.com/file/d/1k_sLal8-MKGKRtuvdvmrTtrdqlNZkRCO/view?usp=sharing
   </ol>
 </h3>
