@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <pthread.h>
+#include <sys/time.h>
 
 //tamanho do vetor
 int count = 0;
@@ -13,6 +14,8 @@ typedef struct pos{
   int start;
   int end;
 } pos;
+
+struct timeval tval_before, tval_after, tval_result;
 
 // Declaracao das funcoess
 void * startMergeSort(void * structPos);
@@ -69,12 +72,13 @@ int main(int argc, char const *argv[]) {
   //printf("\n%s\n\n", "fim");
   pos pos[numT];
 
+  gettimeofday(&tval_before, NULL);
+
   countPositions(count, pos, arr);
 
   pthread_t thrd[numT];
 
   int k = 0;
-
   for (k = 0; k < numT; k++) {
     //printf("%d -- %d\n", pos[k].start, pos[k].end);
     pthread_create(&thrd[k], NULL, startMergeSort, &pos[k]);
@@ -85,6 +89,13 @@ int main(int argc, char const *argv[]) {
   }
 
   mergeSort(arr, pos[0].start, pos[numT-1].end-1);
+
+
+  gettimeofday(&tval_after, NULL);
+
+  timersub(&tval_after, &tval_before, &tval_result);
+
+  printf("Time elapsed: %ld.%06ld\n", (long int)tval_result.tv_sec, (long int)tval_result.tv_usec);
 
   FILE *p = fopen(argv[i], "w");
   for (k = 0; k < count; k++) {
